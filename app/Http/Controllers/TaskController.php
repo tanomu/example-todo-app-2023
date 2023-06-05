@@ -7,6 +7,7 @@ use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use App\UseCases\ArchiveTaskUseCase;
 use App\UseCases\CreateTaskUseCase;
+use App\UseCases\DestroyTaskUseCase;
 use App\UseCases\UnarchiveTaskUseCase;
 use App\UseCases\UpdateTaskUseCase;
 use Illuminate\Http\Request;
@@ -51,6 +52,13 @@ class TaskController extends Controller
 
     // アーカイブを解除する
     public function unarchive(UnarchiveTaskUseCase $useCase, int $id): Response
+    {
+        $useCase->handle(task: $this->fetchTask(id: $id));
+        return response()->noContent(200);
+    }
+
+    // 完全削除する
+    public function destroy(DestroyTaskUseCase $useCase, int $id): Response
     {
         $useCase->handle(task: $this->fetchTask(id: $id));
         return response()->noContent(200);

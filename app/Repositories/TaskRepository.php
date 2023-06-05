@@ -16,4 +16,9 @@ class TaskRepository implements TaskRepositoryContract
         $task->save();
         return $task;
     }
+
+    public function delete(Task $task): void
+    {
+        $task->delete();
+    }
 }

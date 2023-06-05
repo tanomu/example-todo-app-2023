@@ -22,6 +22,7 @@ Route::prefix('tasks')->group(function () {
         Route::put('/', [TaskController::class, 'update']);
         Route::put('/archive', [TaskController::class, 'archive']);
         Route::put('/unarchive', [TaskController::class, 'unarchive']);
+        Route::delete('/', [TaskController::class, 'destroy']);
     });
 });
 
