@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { Task as TaskData } from '@/repositories/TaskRepository'
-import { archive, create, index, update } from '@/repositories/TaskRepository'
+import {
+  archive,
+  archives,
+  create,
+  destroy,
+  index,
+  unarchive,
+  update
+} from '@/repositories/TaskRepository'
 
 type Task = TaskData & { editing: boolean; newTitle: string; newBody: string }
 
@@ -10,9 +18,11 @@ const errorMessage = ref<string | null>(null)
 const tasks = ref<Task[]>([])
 const title = ref('')
 const body = ref('')
+const isArchiveMode = ref(false)
 
 const fetch = async () => {
-  tasks.value = (await index()).map((task) => ({
+  const promise = isArchiveMode.value ? archives() : index()
+  tasks.value = (await promise).map((task) => ({
     ...task,
     editing: false,
     newTitle: '',
@@ -97,6 +107,48 @@ const archiveTask = async (id: number) => {
   }
 }
 
+const unarchiveTask = async (id: number) => {
+  if (loading.value) {
+    return
+  }
+  loading.value = true
+  errorMessage.value = null
+  try {
+    await unarchive(id)
+    await fetch()
+  } catch (error) {
+    console.error(error)
+    errorMessage.value = '復活に失敗しました'
+  } finally {
+    loading.value = false
+  }
+}
+
+const destroyTask = async (id: number) => {
+  if (loading.value) {
+    return
+  }
+  loading.value = true
+  errorMessage.value = null
+  try {
+    await destroy(id)
+    await fetch()
+  } catch (error) {
+    console.error(error)
+    errorMessage.value = '完全削除に失敗しました'
+  } finally {
+    loading.value = false
+  }
+}
+
+const changeMode = async (toArchiveMode: boolean) => {
+  if ((toArchiveMode && isArchiveMode.value) || (!toArchiveMode && !isArchiveMode.value)) {
+    return
+  }
+  isArchiveMode.value = toArchiveMode
+  await fetch()
+}
+
 fetch()
 </script>
 
@@ -149,10 +201,16 @@ fetch()
           ></textarea>
         </div>
         <div class="footer">
-          <a href="#" @click.prevent="archiveTask(task.id)">アーカイブ</a>
+          <a v-if="!task.is_archived" href="#" @click.prevent="archiveTask(task.id)">アーカイブ</a>
+          <a v-if="task.is_archived" href="#" @click.prevent="unarchiveTask(task.id)">復活</a>
+          <a v-if="task.is_archived" href="#" @click.prevent="destroyTask(task.id)">完全削除</a>
         </div>
       </li>
     </ul>
+    <div class="list-actions">
+      <a v-if="!isArchiveMode" href="#" @click.prevent="changeMode(true)">アーカイブ一覧を表示</a>
+      <a v-if="isArchiveMode" href="#" @click.prevent="changeMode(false)">一覧を表示</a>
+    </div>
   </div>
 </template>
 
@@ -213,6 +271,7 @@ fetch()
           font-weight: bold;
           margin-right: 1rem;
         }
+
         .title {
           flex: 1;
           padding: 0.2rem 0;
@@ -222,6 +281,7 @@ fetch()
             padding: 0.5rem 0.8rem;
           }
         }
+
         a {
           flex: 0 0 auto;
           font-size: 0.8rem;
@@ -241,8 +301,19 @@ fetch()
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        font-size: 0.6rem;
+        font-size: 0.8rem;
+        column-gap: 1rem;
       }
+    }
+  }
+
+  .list-actions {
+    color: #fff;
+    font-size: 0.9rem;
+    text-align: right;
+
+    a {
+      color: #fff;
     }
   }
 }
