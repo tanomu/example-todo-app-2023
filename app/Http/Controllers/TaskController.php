@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\Repositories\TaskRepositoryContract;
-use App\Http\Controllers\Api\ApiController;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use App\UseCases\ArchiveTaskUseCase;
