@@ -14,6 +14,11 @@ export const index = async (): Promise<Task[]> => {
   return res.data.data
 }
 
+export const archives = async (): Promise<Task[]> => {
+  const res = await axios.get('/tasks/archives')
+  return res.data.data
+}
+
 export const create = async (title: string, body: string): Promise<void> => {
   await axios.post('/tasks', {
     title,
@@ -34,4 +39,8 @@ export const archive = async (id: number): Promise<void> => {
 
 export const unarchive = async (id: number): Promise<void> => {
   await axios.put(`/tasks/${id}/unarchive`)
+}
+
+export const destroy = async (id: number): Promise<void> => {
+  await axios.delete(`/tasks/${id}`)
 }

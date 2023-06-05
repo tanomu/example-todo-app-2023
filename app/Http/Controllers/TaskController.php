@@ -7,6 +7,7 @@ use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use App\UseCases\ArchiveTaskUseCase;
 use App\UseCases\CreateTaskUseCase;
+use App\UseCases\DestroyTaskUseCase;
 use App\UseCases\UnarchiveTaskUseCase;
 use App\UseCases\UpdateTaskUseCase;
 use Illuminate\Http\Request;
@@ -23,6 +24,12 @@ class TaskController extends Controller
     public function index(): ResourceCollection
     {
         return TaskResource::collection(Task::query()->whereNull('archived_at')->orderByDesc('id')->get());
+    }
+
+    // アーカイブ済み一覧を返す
+    public function archives(): ResourceCollection
+    {
+        return TaskResource::collection(Task::query()->whereNotNull('archived_at')->orderByDesc('id')->get());
     }
 
     // 新規作成する
@@ -51,6 +58,13 @@ class TaskController extends Controller
 
     // アーカイブを解除する
     public function unarchive(UnarchiveTaskUseCase $useCase, int $id): Response
+    {
+        $useCase->handle(task: $this->fetchTask(id: $id));
+        return response()->noContent(200);
+    }
+
+    // 完全削除する
+    public function destroy(DestroyTaskUseCase $useCase, int $id): Response
     {
         $useCase->handle(task: $this->fetchTask(id: $id));
         return response()->noContent(200);
