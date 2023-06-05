@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('tasks')->group(function () {
     Route::get('/', [TaskController::class, 'index']);
+    Route::get('/archives', [TaskController::class, 'archives']);
     Route::post('/', [TaskController::class, 'create']);
 
     Route::prefix('{id}')->group(function () {

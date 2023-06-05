@@ -26,6 +26,12 @@ class TaskController extends Controller
         return TaskResource::collection(Task::query()->whereNull('archived_at')->orderByDesc('id')->get());
     }
 
+    // アーカイブ済み一覧を返す
+    public function archives(): ResourceCollection
+    {
+        return TaskResource::collection(Task::query()->whereNotNull('archived_at')->orderByDesc('id')->get());
+    }
+
     // 新規作成する
     public function create(CreateTaskUseCase $useCase, Request $request): Response
     {
